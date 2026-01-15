@@ -2,4 +2,4 @@ plugins {
     id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
 }
 
-rootProject.name = "breakpoint-log-selection-new"
+rootProject.name = "breakpoint-log-selection"

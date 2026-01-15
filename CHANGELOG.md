@@ -1,6 +1,6 @@
 <!-- Keep a Changelog guide -> https://keepachangelog.com -->
 
-# breakpoint-log-selection-new Changelog
+# breakpoint-log-selection Changelog
 
 ## [Unreleased]
 ### Added

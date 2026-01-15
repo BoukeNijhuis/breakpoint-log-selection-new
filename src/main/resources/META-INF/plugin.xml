@@ -1,15 +1,20 @@
 <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
 <idea-plugin>
-    <id>com.github.boukenijhuis.breakpointlogselectionnew</id>
-    <name>breakpoint-log-selection-new</name>
-    <vendor>boukenijhuis</vendor>
+    <id>com.github.boukenijhuis.breakpointlogselection</id>
+    <name>Log Selection with Breakpoint</name>
+    <vendor>Bouke Nijhuis</vendor>
 
     <depends>com.intellij.modules.platform</depends>
 
-    <resource-bundle>messages.MyBundle</resource-bundle>
-
-    <extensions defaultExtensionNs="com.intellij">
-        <toolWindow factoryClass="com.github.boukenijhuis.breakpointlogselectionnew.toolWindow.MyToolWindowFactory" id="MyToolWindow"/>
-        <postStartupActivity implementation="com.github.boukenijhuis.breakpointlogselectionnew.startup.MyProjectActivity" />
-    </extensions>
+    <actions>
+        <action id="Log Selection with Breakpoint"
+                class="com.github.boukenijhuis.breakpointlogselection.BreakpointLogAction"
+                text="Log Selection with Breakpoint"
+                description="Adds a non-suspending breakpoint on the next line that will log the selected text.">
+            <keyboard-shortcut
+                    keymap="$default"
+                    first-keystroke="control meta F8"/>
+            />
+        </action>
+    </actions>
 </idea-plugin>
