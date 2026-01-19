@@ -34,34 +34,34 @@ class BreakpointLogAction : AnAction() {
         // determine the position variables
         val offset = editor.caretModel.offset
         val currentPosition = XSourcePositionImpl.createByOffset(currentFile, offset) as XSourcePosition
-        val nextLinePosition = XSourcePositionImpl.create(currentFile, currentPosition.line + 1)
 
-        // check the selection and determine the breakpoint position
-        val selectedText = editor.selectionModel.selectedText
-        var position = currentPosition
-        if (selectedText != null) {
-            position = nextLinePosition
+        // decide where to put it: next line if something is selected, otherwise current line
+        val selectedText = editor.selectionModel.selectedText?.trim()
+        var targetLine = if (selectedText != null) currentPosition.line + 1 else currentPosition.line
+
+        // find the first valid line for a breakpoint starting from targetLine
+        val lineCount = editor.document.lineCount
+        while (targetLine < lineCount &&
+            !getInstance().canPutBreakpointAt(project, currentFile, targetLine)) {
+            targetLine++
         }
 
-        // increase the line number if the determined position does not support a breakpoint
-        while (!getInstance().canPutBreakpointAt(project, currentFile, position.line)) {
-            position = XSourcePositionImpl.create(currentFile, position.line + 1)
+        // do not exceed the end of the document
+        if (targetLine >= lineCount) return
 
-            // when we move past the last line
-            if (position.line + 1 > editor.document.lineCount) {
-                return
-            }
-        }
+        val position = XSourcePositionImpl.create(currentFile, targetLine)
+
 
         // always toggle (even if there is no selection)
         breakpoint =
             XBreakpointUtil.toggleLineBreakpoint(project, position, true, editor, false, false, true)
 
         // update the breakpoint with the log expression
+        // todo: check for multiple lines
         if (selectedText != null && breakpoint is AsyncPromise) {
             breakpoint.then {
                 it?.suspendPolicy = SuspendPolicy.NONE
-                it?.setLogExpression("\"$selectedText = [\" + $selectedText + \"]\"")
+                it?.setLogExpression("\"$selectedText = [$selectedText]\"")
             }
         }
     }
