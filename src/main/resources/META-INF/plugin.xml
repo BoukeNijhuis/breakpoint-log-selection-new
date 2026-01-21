@@ -17,4 +17,9 @@
             />
         </action>
     </actions>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <notificationGroup id="Custom Notification Group"
+                           displayType="BALLOON"/>
+    </extensions>
 </idea-plugin>
