@@ -1,12 +1,14 @@
 package com.github.boukenijhuis.breakpointlogselection
 
 import com.intellij.openapi.actionSystem.AnActionEvent
-import com.intellij.testFramework.PlatformTestUtil
+import com.intellij.openapi.actionSystem.ex.ActionUtil
 import com.intellij.testFramework.TestActionEvent.createTestEvent
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
+import com.intellij.util.ui.UIUtil
 import com.intellij.xdebugger.XDebuggerManager
 import com.intellij.xdebugger.breakpoints.SuspendPolicy
 import com.intellij.xdebugger.breakpoints.XBreakpointManager
+import java.lang.Thread.sleep
 
 class MyPluginTest : BasePlatformTestCase() {
 
@@ -40,8 +42,7 @@ class MyPluginTest : BasePlatformTestCase() {
         assertNull("Should not have log expression", breakpoint.logExpressionObject)
 
         // Toggle off
-        action.actionPerformed(actionEvent)
-        PlatformTestUtil.waitForPromise(action.breakpoint)
+        performBreakpointAction()
         assertEquals("Expected breakpoint to be removed.", 0, manager.allBreakpoints.size - breakpointsBefore)
     }
 
@@ -91,8 +92,7 @@ class MyPluginTest : BasePlatformTestCase() {
         )
 
         // call the plugin again to remove the breakpoint
-        action.actionPerformed(actionEvent)
-        PlatformTestUtil.waitForPromise(action.breakpoint)
+        performBreakpointAction()
 
         // there should be no breakpoint extra
         val breakpointsAfterDouble = manager.allBreakpoints.size
@@ -138,8 +138,14 @@ class MyPluginTest : BasePlatformTestCase() {
     private fun performBreakpointAction(): Pair<BreakpointLogAction, AnActionEvent> {
         val action = BreakpointLogAction()
         val actionEvent = createTestEvent(action)
-        action.actionPerformed(actionEvent)
-        PlatformTestUtil.waitForPromise(action.breakpoint)
+        ActionUtil.performAction(action, actionEvent)
+
+        // necessary to wait for the breakpoint promise to resolve
+        (0..10).forEach {
+            UIUtil.dispatchAllInvocationEvents()
+            sleep(5)
+        }
+
         return Pair(action, actionEvent)
     }
 

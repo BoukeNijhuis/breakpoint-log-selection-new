@@ -18,10 +18,6 @@ import org.jetbrains.concurrency.resolvedPromise
 
 class BreakpointLogAction : AnAction() {
 
-    // exposed for testing (will be updated later)
-    var breakpoint: Promise<XLineBreakpoint<*>?> = resolvedPromise()
-        private set
-
     override fun getActionUpdateThread(): ActionUpdateThread {
         return ActionUpdateThread.BGT
     }
@@ -68,7 +64,7 @@ class BreakpointLogAction : AnAction() {
         val position = XSourcePositionImpl.create(currentFile, nextValidLine)
 
         // always toggle (even if there is no selection)
-        breakpoint =
+        val breakpoint =
             XBreakpointUtil.toggleLineBreakpoint(project, position, true, editor, false, false, true)
 
         // update the breakpoint with the log expression
