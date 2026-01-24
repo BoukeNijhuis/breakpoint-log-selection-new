@@ -80,7 +80,7 @@ class MyPluginTest : BasePlatformTestCase() {
         assertEquals("Expected exactly one created breakpoint.", 1, breakpointsAfter - breakpointsBefore)
 
         // check the created breakpoint
-        val breakpoint = manager.allBreakpoints.last()
+        val breakpoint = manager.allBreakpoints.last() { it is com.intellij.xdebugger.breakpoints.XLineBreakpoint<*>}
         assertEquals("Expected the breakpoint to not suspend.", breakpoint.suspendPolicy, SuspendPolicy.NONE)
         assertNotNull(
             "Expected the breakpoint the have a log expression",
