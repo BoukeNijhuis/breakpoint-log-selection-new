@@ -10,11 +10,8 @@ import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.xdebugger.XDebuggerUtil.getInstance
 import com.intellij.xdebugger.XSourcePosition
 import com.intellij.xdebugger.breakpoints.SuspendPolicy
-import com.intellij.xdebugger.breakpoints.XLineBreakpoint
 import com.intellij.xdebugger.impl.XSourcePositionImpl
 import com.intellij.xdebugger.impl.breakpoints.XBreakpointUtil
-import org.jetbrains.concurrency.Promise
-import org.jetbrains.concurrency.resolvedPromise
 
 class BreakpointLogAction : AnAction() {
 
@@ -69,11 +66,15 @@ class BreakpointLogAction : AnAction() {
 
         // update the breakpoint with the log expression
         // todo: check for multiple lines
-        if (selectedText != null) {
-            breakpoint.then {
+
+        breakpoint.then {
+            if (selectedText != null) {
                 it?.suspendPolicy = SuspendPolicy.NONE
                 it?.setLogExpression("\"$selectedText = [$selectedText]\"")
             }
+            // always add this synonym to easily identify the fulfillment of the promise
+            this.addSynonym { this.javaClass.simpleName }
         }
+
     }
 }

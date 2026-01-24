@@ -1,6 +1,5 @@
 package com.github.boukenijhuis.breakpointlogselection
 
-import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.ex.ActionUtil
 import com.intellij.testFramework.TestActionEvent.createTestEvent
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
@@ -8,6 +7,7 @@ import com.intellij.util.ui.UIUtil
 import com.intellij.xdebugger.XDebuggerManager
 import com.intellij.xdebugger.breakpoints.SuspendPolicy
 import com.intellij.xdebugger.breakpoints.XBreakpointManager
+import java.awt.Toolkit
 import java.lang.Thread.sleep
 
 class MyPluginTest : BasePlatformTestCase() {
@@ -80,8 +80,7 @@ class MyPluginTest : BasePlatformTestCase() {
         assertEquals("Expected exactly one created breakpoint.", 1, breakpointsAfter - breakpointsBefore)
 
         // check the created breakpoint
-        val breakpoint = manager.allBreakpoints.last() { it is com.intellij.xdebugger.breakpoints.XLineBreakpoint<*>}
-        println(breakpoint)
+        val breakpoint = manager.allBreakpoints.last()
         assertEquals("Expected the breakpoint to not suspend.", breakpoint.suspendPolicy, SuspendPolicy.NONE)
         assertNotNull(
             "Expected the breakpoint the have a log expression",
@@ -137,11 +136,17 @@ class MyPluginTest : BasePlatformTestCase() {
         val actionEvent = createTestEvent(action)
         ActionUtil.performAction(action, actionEvent)
 
+
         // necessary to wait for the breakpoint promise to resolve
-        (0..10).forEach {
-            UIUtil.dispatchAllInvocationEvents()
+        var counter = 0
+        do {
+π            UIUtil.dispatchAllInvocationEvents()
             sleep(5)
-        }
+            // special case for a normal breakpoint
+            if (counter++ > 10) break
+        } while (!action.synonyms.contains { action.javaClass.simpleName } )
+
+
     }
 
     override fun getTestDataPath(): String {
