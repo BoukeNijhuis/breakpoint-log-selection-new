@@ -26,10 +26,9 @@ class MyPluginTest : BasePlatformTestCase() {
 
     fun testBreakpointToggleNoSelection() {
         val manager = setup("MainNoSelection.java")
+
         val breakpointsBefore = manager.allBreakpoints.size
-
-        val (action, actionEvent) = performBreakpointAction()
-
+        performBreakpointAction()
         val breakpointsAfter = manager.allBreakpoints.size
         assertEquals("Expected exactly one created breakpoint.", 1, breakpointsAfter - breakpointsBefore)
 
@@ -71,13 +70,10 @@ class MyPluginTest : BasePlatformTestCase() {
     }
 
     private fun testBreakpointCreation(myPluginTest: MyPluginTest, fileName: String) {
-        myPluginTest.myFixture.configureByFiles(fileName)
-        val manager = XDebuggerManager.getInstance(myPluginTest.project).breakpointManager;
+        val manager = setup(fileName)
 
         val breakpointsBefore = manager.allBreakpoints.size
-
-        val (action, actionEvent) = performBreakpointAction()
-
+        performBreakpointAction()
         val breakpointsAfter = manager.allBreakpoints.size
 
         // there should be one breakpoint extra
@@ -103,9 +99,7 @@ class MyPluginTest : BasePlatformTestCase() {
         val manager = setup(fileName)
 
         val breakpointsBefore = manager.getAllBreakpoints().size
-
         performBreakpointAction()
-
         val breakpointsAfter = manager.getAllBreakpoints().size
 
         // there should be one breakpoint extra
@@ -126,16 +120,18 @@ class MyPluginTest : BasePlatformTestCase() {
     }
 
     /**
-     * Executes the breakpoint logging action in a test environment and returns the action together with
-     * the event that was used to trigger it. The method creates a {@link BreakpointLogAction},
-     * builds a synthetic {@link AnActionEvent} via {@code createTestEvent}, performs the action,
-     * waits for the resulting breakpoint promise to resolve, and then returns a pair containing
-     * both the action and the event.
+     * Executes the `BreakpointLogAction` within the test environment.
      *
-     * @return a {@link Pair} where the first element is the {@code BreakpointLogAction} that was executed
-     * and the second element is the {@code AnActionEvent} that was passed to it.
+     * The method constructs a synthetic action event and triggers the action,
+     * which toggles a breakpoint at the current caret position. After performing
+     * the action, it processes any pending UI events for a short period to allow
+     * asynchronous breakpoint creation or removal to complete.
+     *
+     * This helper is intended for use in unit tests that verify breakpoint
+     * behaviour, ensuring that the action has been fully executed before any
+     * assertions are made on the breakpoint state.
      */
-    private fun performBreakpointAction(): Pair<BreakpointLogAction, AnActionEvent> {
+    private fun performBreakpointAction() {
         val action = BreakpointLogAction()
         val actionEvent = createTestEvent(action)
         ActionUtil.performAction(action, actionEvent)
@@ -145,8 +141,6 @@ class MyPluginTest : BasePlatformTestCase() {
             UIUtil.dispatchAllInvocationEvents()
             sleep(5)
         }
-
-        return Pair(action, actionEvent)
     }
 
     override fun getTestDataPath(): String {
