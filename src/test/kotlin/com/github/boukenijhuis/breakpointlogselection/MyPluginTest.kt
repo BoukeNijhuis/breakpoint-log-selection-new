@@ -140,7 +140,7 @@ class MyPluginTest : BasePlatformTestCase() {
         // necessary to wait for the breakpoint promise to resolve
         var counter = 0
         do {
-π            UIUtil.dispatchAllInvocationEvents()
+            UIUtil.dispatchAllInvocationEvents()
             sleep(5)
             // special case for a normal breakpoint
             if (counter++ > 10) break
