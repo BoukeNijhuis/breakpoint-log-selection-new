@@ -7,10 +7,17 @@ import com.intellij.util.ui.UIUtil
 import com.intellij.xdebugger.XDebuggerManager
 import com.intellij.xdebugger.breakpoints.SuspendPolicy
 import com.intellij.xdebugger.breakpoints.XBreakpointManager
-import java.awt.Toolkit
 import java.lang.Thread.sleep
 
 class MyPluginTest : BasePlatformTestCase() {
+
+    @Throws(Exception::class)
+    override fun setUp() {
+        super.setUp()
+
+        // warming up the VM so the tests succeed in the pipeline
+        performBreakpointAction()
+    }
 
     fun testBreakpointCreationOnNextLine() {
         testBreakpointCreation(this, "Main.java")
@@ -144,7 +151,7 @@ class MyPluginTest : BasePlatformTestCase() {
             sleep(5)
             // special case for a normal breakpoint
             if (counter++ > 10) break
-        } while (!action.synonyms.contains { action.javaClass.simpleName } )
+        } while (!action.synonyms.contains { action.javaClass.simpleName })
 
 
     }
