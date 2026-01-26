@@ -11,14 +11,6 @@ import java.lang.Thread.sleep
 
 class MyPluginTest : BasePlatformTestCase() {
 
-    @Throws(Exception::class)
-    override fun setUp() {
-        super.setUp()
-
-        // warming up the VM so the tests succeed in the pipeline
-        performBreakpointAction()
-    }
-
     fun testBreakpointCreationOnNextLine() {
         testBreakpointCreation(this, "Main.java")
     }
@@ -80,7 +72,8 @@ class MyPluginTest : BasePlatformTestCase() {
         val manager = setup(fileName)
 
         val breakpointsBefore = manager.allBreakpoints.size
-        performBreakpointAction()
+        // never timeout, wait till the promise resolves
+        performBreakpointAction(false)
         val breakpointsAfter = manager.allBreakpoints.size
 
         // there should be one breakpoint extra
@@ -138,7 +131,7 @@ class MyPluginTest : BasePlatformTestCase() {
      * behaviour, ensuring that the action has been fully executed before any
      * assertions are made on the breakpoint state.
      */
-    private fun performBreakpointAction() {
+    private fun performBreakpointAction(useTimeout: Boolean = true) {
         val action = BreakpointLogAction()
         val actionEvent = createTestEvent(action)
         ActionUtil.performAction(action, actionEvent)
@@ -150,10 +143,8 @@ class MyPluginTest : BasePlatformTestCase() {
             UIUtil.dispatchAllInvocationEvents()
             sleep(5)
             // special case for a normal breakpoint
-            if (counter++ > 10) break
-        } while (!action.synonyms.contains { action.javaClass.simpleName })
-
-
+            if (counter++ > 10 && useTimeout) break
+        } while (!action.isPromisedResolved())
     }
 
     override fun getTestDataPath(): String {

@@ -15,6 +15,8 @@ import com.intellij.xdebugger.impl.breakpoints.XBreakpointUtil
 
 class BreakpointLogAction : AnAction() {
 
+    private var promisedResolved: Boolean = false
+
     override fun getActionUpdateThread(): ActionUpdateThread {
         return ActionUpdateThread.BGT
     }
@@ -72,9 +74,11 @@ class BreakpointLogAction : AnAction() {
                 it?.suspendPolicy = SuspendPolicy.NONE
                 it?.setLogExpression("\"$selectedText = [$selectedText]\"")
             }
-            // always add this synonym to easily identify the fulfillment of the promise
-            this.addSynonym { this.javaClass.simpleName }
+            this.promisedResolved = true
         }
+    }
 
+    fun isPromisedResolved(): Boolean {
+        return promisedResolved
     }
 }
